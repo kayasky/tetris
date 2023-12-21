@@ -68,19 +68,5 @@ body {
 }
 
 .block.full-row {
-  animation: blink 0.5s ease infinite;
-}
-
-@keyframes blink {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: .5;
-  }
-
-  100% {
-    opacity: 1;
-  }
+  background-color: white !important;
 }

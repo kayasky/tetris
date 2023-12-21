@@ -111,7 +111,7 @@ function updateScoreAndRemoveFullRow(currentRow, row) {
     const blocksAbove = document.getElementsByClassName('block');
     currentRow.forEach(block => block.remove());
     [...blocksAbove].forEach(block => moveOneRowDown(block, row));
-  }, DEFAULT_CLOCK_SPEED);
+  }, 300);
 }
 
 function increaseScore() {
