@@ -93,7 +93,11 @@ function checkIfRowIsFull(blocks) {
   });
 
   for (let row in rows) {
-    if (rows[row].length > 9) {
+    const rowWidth = [...rows[row]]
+      .map(row => row.offsetWidth)
+      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+    if (rowWidth >= 800) {
       increaseScore();
       rows[row].forEach(block => block.classList.add('full-row'));
       setTimeout(() => {
@@ -143,6 +147,8 @@ function createNextBlockElement() {
   const blockTypes = ['square', 'line'];
   const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
 
+  // not working as of now
+  //nextBlock.classList.add(color, blockType);
   nextBlock.classList.add(color);
   nextBlock.style.top = '0px';
   nextBlock.style.left = `${left}px`;
