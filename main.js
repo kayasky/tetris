@@ -36,13 +36,16 @@ function draw() {
 
 function update() {
   mybox.y += 40;
+  lastTime = 100;
 }
 
 function loop(time) {
   if ((time - lastTime) < FRAME_PERIOD) {
+    console.log("(time - lastTime) < FRAME_PERIOD");
     window.requestAnimationFrame(loop);
     return;
   }
+  console.log("time: " + time); 
   lastTime = time;
   update();
   draw();
