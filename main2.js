@@ -135,6 +135,15 @@ function createNextBlockElement() {
   const left = getLeftValue();
   let nextBlock = document.createElement('div');
   nextBlock.classList.add('block');
+  // randomly choose color
+  const colors = ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  // randomly choose block type
+  const blockTypes = ['square', 'line'];
+  const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+
+  nextBlock.classList.add(color);
   nextBlock.style.top = '0px';
   nextBlock.style.left = `${left}px`;
   return nextBlock;
