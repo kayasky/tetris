@@ -93,20 +93,25 @@ function checkIfRowIsFull(blocks) {
   });
 
   for (let row in rows) {
-    const rowWidth = [...rows[row]]
-      .map(row => row.offsetWidth)
-      .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    const currentRow = rows[row];
+    const rowWidth = [...currentRow]
+      .map(block => block.offsetWidth)
+      .reduce((totalWidth, currentBlockWidth) => totalWidth + currentBlockWidth, 0);
 
     if (rowWidth >= 800) {
-      increaseScore();
-      rows[row].forEach(block => block.classList.add('full-row'));
-      setTimeout(() => {
-        const blocksAbove = document.getElementsByClassName('block');
-        rows[row].forEach(block => block.remove());
-        [...blocksAbove].forEach(block => moveOneRowDown(block, row));
-      }, 300);
+      updateScoreAndRemoveFullRow(currentRow, row);
     }
   }
+}
+
+function updateScoreAndRemoveFullRow(currentRow, row) {
+  increaseScore();
+  currentRow.forEach(block => block.classList.add('full-row'));
+  setTimeout(() => {
+    const blocksAbove = document.getElementsByClassName('block');
+    currentRow.forEach(block => block.remove());
+    [...blocksAbove].forEach(block => moveOneRowDown(block, row));
+  }, DEFAULT_CLOCK_SPEED);
 }
 
 function increaseScore() {
