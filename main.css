@@ -22,4 +22,9 @@ body {
   height: 80px;
   background-color: rgb(74, 22, 171);
   position: absolute;
+  outline: 5px solid black;
+  outline-offset: -5px;
+  transition: top 0.1s linear 0s;
+  top: 0;
+  box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
 }
