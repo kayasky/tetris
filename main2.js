@@ -1,41 +1,24 @@
 (() => {
   const gameScreen = document.getElementById('screen');
+  const DEFAULT_CLOCK_SPEED = 300;
+  const FAST_CLOCK_SPEED = 50;
   spawnBlock(gameScreen);
 
   function spawnBlock(screen) {
     let paused = false;
+    let counter = DEFAULT_CLOCK_SPEED;
     let nextBlock = createNextBlockElement();
     screen.appendChild(nextBlock);
+    let fallingState = animateFallingBlock();
 
-    const fallingState = setInterval(() => {
-      if (paused) return;
-      const top = parseInt(nextBlock.style.top);
-      const blocks = document.getElementsByClassName('block');
-
-      [...blocks].filter(block => block !== nextBlock).forEach(block => {
-        if (isTouchingAnotherBlockBelow(top, block, nextBlock)) {
-          stopFallingState(blocks);
-          return;
-        }
-      });
-
-      if (isAtBottomOfScreen(top, screen, nextBlock)) {
-        stopFallingState(blocks);
-        return;
-      }
-
-      if (nextBlock)
-        nextBlock.style.top = `${top + 40}px`;
-    }, 100);
-
-    //listen to the keyboard input for moving the block
     const keydownListener = (e) => {
+      e.preventDefault();
+
       if (e.code === 'Space') {
-        // pause the falling
         paused = !paused;
       }
 
-      if (!nextBlock || paused) return;
+      if (!nextBlock || paused || !fallingState) return;
 
       const left = parseInt(nextBlock.style.left);
       if (e.code === 'ArrowLeft') {
@@ -46,10 +29,47 @@
         if (left < 720) {
           nextBlock.style.left = `${left + 40}px`;
         }
+      } else if (e.code === 'ArrowDown') {
+        if (counter == FAST_CLOCK_SPEED) return;
+        clearInterval(fallingState);
+        counter = 50;
+        fallingState = animateFallingBlock();
       }
     };
 
+    const keyupListener = (e) => {
+      if (e.code === 'ArrowDown' && fallingState) {
+        clearInterval(fallingState);
+        counter = DEFAULT_CLOCK_SPEED;
+        fallingState = animateFallingBlock();
+      }
+    }
+
     document.addEventListener('keydown', keydownListener);
+    document.addEventListener('keyup', keyupListener);
+
+    function animateFallingBlock() {
+      return setInterval(() => {
+        if (paused || !nextBlock) return;
+        const top = parseInt(nextBlock.style.top);
+        const blocks = document.getElementsByClassName('block');
+
+        [...blocks].filter(block => block !== nextBlock).forEach(block => {
+          if (isTouchingAnotherBlockBelow(top, block, nextBlock)) {
+            stopFallingState(blocks);
+            return;
+          }
+        });
+
+        if (isAtBottomOfScreen(top, screen, nextBlock)) {
+          stopFallingState(blocks);
+          return;
+        }
+
+        if (nextBlock)
+          nextBlock.style.top = `${top + 40}px`;
+      }, counter);
+    }
 
     function stopFallingState(blocks) {
       checkIfRowIsFull(blocks);
@@ -63,21 +83,24 @@
 
 function checkIfRowIsFull(blocks) {
   const rows = {};
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
+
+  [...blocks].forEach(block => {
     const top = parseInt(block.style.top);
     if (!rows[top]) {
       rows[top] = [];
     }
     rows[top].push(block);
-  }
+  });
 
   for (let row in rows) {
     if (rows[row].length > 9) {
       increaseScore();
-      const blocksAbove = document.getElementsByClassName('block');
-      rows[row].forEach(block => block.remove());
-      [...blocksAbove].forEach(block => moveOneRowDown(block, row));
+      rows[row].forEach(block => block.classList.add('full-row'));
+      setTimeout(() => {
+        const blocksAbove = document.getElementsByClassName('block');
+        rows[row].forEach(block => block.remove());
+        [...blocksAbove].forEach(block => moveOneRowDown(block, row));
+      }, 300);
     }
   }
 }

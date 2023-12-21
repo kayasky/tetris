@@ -32,7 +32,11 @@ body {
   position: absolute;
   outline: 5px solid black;
   outline-offset: -5px;
-  transition: all 0.1s linear 0s;
+  transition: all 0.05s linear 0s;
   top: 0;
   box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
+}
+
+.full-row {
+  background-color: rgb(191, 159, 250);
 }
