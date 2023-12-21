@@ -1,52 +1,156 @@
-// const canvas = document.getElementById("canvas");
-// const ctx = canvas.getContext("2d");
+(() => {
+  const gameScreen = document.getElementById('screen');
+  const DEFAULT_CLOCK_SPEED = 300;
+  const FAST_CLOCK_SPEED = 50;
+  spawnBlock(gameScreen);
 
-// ctx.fillStyle = "green";
+  function spawnBlock(screen) {
+    let paused = false;
+    let counter = DEFAULT_CLOCK_SPEED;
+    let nextBlock = createNextBlockElement();
+    screen.appendChild(nextBlock);
+    let fallingState = animateFallingBlock();
 
-// const box = {
-//   x: 360,
-//   y: 0,
-//   width: 80,
-//   height: 80
-// };
+    const keydownListener = (e) => {
+      e.preventDefault();
 
-//ctx.fillRect(360, 0, 80, 80);
-window.addEventListener("load", init, false);
-let canvas;
-let ctx;
-let mybox = {
-  x: 360,
-  y: 0,
-  width: 80,
-  height: 80
-};
-let lastTime = 100;
-const FRAME_PERIOD = 1000;
-function init() {
-  canvas = document.getElementById("canvas");
-  ctx = canvas.getContext("2d");
-  loop(400);
-}
+      if (e.code === 'Space') {
+        paused = !paused;
+      }
 
-function draw() {
-  ctx.fillStyle = "green";
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillRect(mybox.x, mybox.y, mybox.width, mybox.height);
-}
+      if (!nextBlock || paused || !fallingState) return;
 
-function update() {
-  mybox.y += 40;
-  lastTime = 100;
-}
+      const left = parseInt(nextBlock.style.left);
+      if (e.code === 'ArrowLeft') {
+        if (left > 0) {
+          nextBlock.style.left = `${left - 40}px`;
+        }
+      } else if (e.code === 'ArrowRight') {
+        if (left < 720) {
+          nextBlock.style.left = `${left + 40}px`;
+        }
+      } else if (e.code === 'ArrowDown') {
+        if (counter == FAST_CLOCK_SPEED) return;
+        clearInterval(fallingState);
+        counter = 50;
+        fallingState = animateFallingBlock();
+      }
+    };
 
-function loop(time) {
-  if ((time - lastTime) < FRAME_PERIOD) {
-    console.log("(time - lastTime) < FRAME_PERIOD");
-    window.requestAnimationFrame(loop);
-    return;
+    const keyupListener = (e) => {
+      if (e.code === 'ArrowDown' && fallingState) {
+        clearInterval(fallingState);
+        counter = DEFAULT_CLOCK_SPEED;
+        fallingState = animateFallingBlock();
+      }
+    }
+
+    document.addEventListener('keydown', keydownListener);
+    document.addEventListener('keyup', keyupListener);
+
+    function animateFallingBlock() {
+      return setInterval(() => {
+        if (paused || !nextBlock) return;
+        const top = parseInt(nextBlock.style.top);
+        const blocks = document.getElementsByClassName('block');
+
+        [...blocks].filter(block => block !== nextBlock).forEach(block => {
+          if (isTouchingAnotherBlockBelow(top, block, nextBlock)) {
+            stopFallingState(blocks);
+            return;
+          }
+        });
+
+        if (isAtBottomOfScreen(top, screen, nextBlock)) {
+          stopFallingState(blocks);
+          return;
+        }
+
+        if (nextBlock)
+          nextBlock.style.top = `${top + 40}px`;
+      }, counter);
+    }
+
+    function stopFallingState(blocks) {
+      checkIfRowIsFull(blocks);
+      nextBlock = null;
+      spawnBlock(screen);
+      clearInterval(fallingState);
+    }
   }
-  console.log("time: " + time); 
-  lastTime = time;
-  update();
-  draw();
+
+})();
+
+function checkIfRowIsFull(blocks) {
+  const rows = {};
+
+  [...blocks].forEach(block => {
+    const top = parseInt(block.style.top);
+    if (!rows[top]) {
+      rows[top] = [];
+    }
+    rows[top].push(block);
+  });
+
+  for (let row in rows) {
+    if (rows[row].length > 9) {
+      increaseScore();
+      rows[row].forEach(block => block.classList.add('full-row'));
+      setTimeout(() => {
+        const blocksAbove = document.getElementsByClassName('block');
+        rows[row].forEach(block => block.remove());
+        [...blocksAbove].forEach(block => moveOneRowDown(block, row));
+      }, 300);
+    }
+  }
 }
+
+function increaseScore() {
+  const score = document.getElementById('score');
+  const currentScore = parseInt(score.innerText);
+  score.innerText = currentScore + 10;
+}
+
+function moveOneRowDown(block, row) {
+  const top = parseInt(block.style.top);
+  if (top < row) {
+    block.style.top = `${top + 80}px`;
+  }
+}
+
+function isAtBottomOfScreen(top, screen, nextBlock) {
+  return nextBlock && top >= (screen.offsetHeight - nextBlock.offsetHeight);
+}
+
+function isTouchingAnotherBlockBelow(top, block, nextBlock) {
+  if (!nextBlock) return false;
+  const blockTop = parseInt(block.style.top);
+  const blockLeft = parseInt(block.style.left);
+  return blockTop === top + block.offsetHeight
+    && ((parseInt(nextBlock.style.left) >= blockLeft && parseInt(nextBlock.style.left) < blockLeft + block.offsetWidth)
+      || (parseInt(nextBlock.style.left) + nextBlock.offsetWidth > blockLeft && parseInt(nextBlock.style.left) < blockLeft));
+}
+
+function createNextBlockElement() {
+  const left = getLeftValue();
+  let nextBlock = document.createElement('div');
+  nextBlock.classList.add('block');
+  // randomly choose color
+  const colors = ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  // randomly choose block type
+  const blockTypes = ['square', 'line'];
+  const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+
+  nextBlock.classList.add(color);
+  nextBlock.style.top = '0px';
+  nextBlock.style.left = `${left}px`;
+  return nextBlock;
+}
+
+function getLeftValue() {
+  const possibleLeft = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720];
+  return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
+}
+
