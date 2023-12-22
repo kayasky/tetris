@@ -155,7 +155,7 @@ function createNextBlockElement() {
   // not working as of now
   //nextBlock.classList.add(color, blockType);
   nextBlock.classList.add(color);
-  nextBlock.style.top = '0px';
+  nextBlock.style.top = '-40px';
   nextBlock.style.left = `${left}px`;
   return nextBlock;
 }
