@@ -12,8 +12,6 @@
     let fallingState = animateFallingBlock();
 
     const keydownListener = (e) => {
-      e.preventDefault();
-
       if (e.code === 'Space') {
         paused = !paused;
       }
@@ -21,19 +19,29 @@
       if (!nextBlock || paused || !fallingState) return;
 
       const left = parseInt(nextBlock.style.left);
-      if (e.code === 'ArrowLeft') {
-        if (left > 0) {
-          nextBlock.style.left = `${left - 40}px`;
-        }
-      } else if (e.code === 'ArrowRight') {
-        if (left < 720) {
-          nextBlock.style.left = `${left + 40}px`;
-        }
-      } else if (e.code === 'ArrowDown') {
-        if (counter == FAST_CLOCK_SPEED) return;
-        clearInterval(fallingState);
-        counter = 50;
-        fallingState = animateFallingBlock();
+
+      switch (e.code) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          if (left > 0) {
+            nextBlock.style.left = `${left - 40}px`;
+          }
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          if (left < 720) {
+            nextBlock.style.left = `${left + 40}px`;
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (counter == FAST_CLOCK_SPEED) return;
+          clearInterval(fallingState);
+          counter = 50;
+          fallingState = animateFallingBlock();
+          break;
+        default:
+          break;
       }
     };
 
