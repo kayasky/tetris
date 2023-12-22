@@ -35,9 +35,9 @@
           break;
         case 'ArrowDown':
           e.preventDefault();
-          if (counter == FAST_CLOCK_SPEED) return;
+          if (counter === FAST_CLOCK_SPEED) return;
           clearInterval(fallingState);
-          counter = 50;
+          counter = FAST_CLOCK_SPEED;
           fallingState = animateFallingBlock();
           break;
         default:
