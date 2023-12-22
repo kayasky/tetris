@@ -4,4 +4,4 @@
 ←→↓ 
 Space bar to pause
 
-![tetris](https://github.com/kayasky/tetris/assets/3538762/3e4fd22a-7417-4017-824e-9cd2b3b68f78)
+![tetris](https://github.com/kayasky/tetris/assets/3538762/e3c6c931-b35d-4209-9bcd-8d9505c554cc)
