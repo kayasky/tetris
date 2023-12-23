@@ -1,0 +1,88 @@
+@font-face {
+  font-family: 'MyWebFont';
+  src: url('PixeloidSans.ttf') format('truetype');
+}
+
+body {
+  text-align: center;
+  background-color: rgb(20, 20, 20);
+  color: #C7FF9E;
+  font-family: 'MyWebFont';
+}
+
+main {
+  width: fit-content;
+  margin: auto;
+}
+
+.game-title {
+  float: left;
+}
+
+.score-label {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  float: right;
+}
+
+.screen {
+  width: 800px;
+  height: 1200px;
+  background-color: black;
+  margin: auto;
+  position: relative;
+  box-shadow: 0px 0px 1px 0px white;
+  overflow: hidden;
+}
+
+.block {
+  width: 80px;
+  height: 80px;
+  background-color: #9EACFF;
+  position: absolute;
+  outline: 5px solid black;
+  outline-offset: -5px;
+  transition: all 0.05s linear 0s;
+  top: 0;
+  box-shadow: inset 0px 0px 20px 0px rgba(255, 255, 255, 0.75);
+  text-shadow: 1px 1px 2px white, 0 0 3px black, 0 0 3px black;
+}
+
+.block::before {
+  content: '＋';
+  color: black;
+  font-size: 111px;
+  line-height: 0.7;
+  margin-left: -15px;
+  text-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.75);
+}
+
+.block.variant1 {
+  background-color: #9EACFF;
+}
+
+.block.variant2 {
+  background-color: #C7FF9E;
+}
+
+.block.variant3 {
+  background-color: #C59EFF;
+}
+
+.block.variant4 {
+  background-color: #FFFB9A;
+}
+
+.block.variant5 {
+  background-color: #9A90AA;
+}
+
+.block.line {
+  height: 160px;
+  width: 40px;
+}
+
+.block.full-row {
+  background-color: white !important;
+}
