@@ -1,95 +1,97 @@
 class TetrisGame extends HTMLElement {
-  static DEFAULT_CLOCK_SPEED = 300
-  static FAST_CLOCK_SPEED = 50;
-  currentClockSpeed = this.DEFAULT_CLOCK_SPEED;
+  currentClockSpeed = 300;
   paused = false;
   nextBlock;
+  gameCanvas;
 
   constructor() {
     super();
   }
+
   connectedCallback() {
     const shadow = this.attachShadow({ mode: "open" });
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
     styles.setAttribute("href", "./tetris-component.css");
     shadow.appendChild(styles);
-    const gameArea = document.createElement("div");
-    const gameScreen = document.createElement("div");
-    gameScreen.classList.add('screen');
-    gameArea.innerHTML = `
+    const gameContainer = document.createElement("div");
+    this.gameCanvas = document.createElement("div");
+    this.gameCanvas.classList.add('game-canvas');
+    gameContainer.innerHTML = `
       <h1 class="game-title">TETRIS</h1>
       <h1 class="score-label">Score <span id="score">0</span></h1>`;
-    shadow.appendChild(gameArea);
-    shadow.appendChild(gameScreen);
-    this.spawnBlock(gameScreen);
+    shadow.appendChild(gameContainer);
+    shadow.appendChild(this.gameCanvas);
+    this.spawnBlock();
   }
 
-  spawnBlock(screen) {
+  spawnBlock() {
     this.nextBlock = this.createNextBlockElement();
-    screen.appendChild(this.nextBlock);
+    this.gameCanvas.appendChild(this.nextBlock);
     this.fallingStateInterval = this.animateFallingBlock();
+    document.addEventListener('keydown', this.keydownListener.bind(this));
+    document.addEventListener('keyup', this.keyupListener.bind(this));
+  }
 
-    const keydownListener = (e) => {
-      if (e.code === 'Space') {
-        this.paused = !this.paused;
-      }
-
-      if (!this.nextBlock || this.paused || !this.fallingStateInterval) return;
-
-      const left = parseInt(this.nextBlock.style.left);
-
-      switch (e.code) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          if (left > 0) {
-            this.nextBlock.style.left = `${left - 40}px`;
-          }
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          if (left < 720) {
-            this.nextBlock.style.left = `${left + 40}px`;
-          }
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          if (this.currentClockSpeed === this.FAST_CLOCK_SPEED) return;
-          clearInterval(this.fallingStateInterval);
-          this.currentClockSpeed = this.FAST_CLOCK_SPEED;
-          this.fallingStateInterval = this.animateFallingBlock();
-          break;
-        default:
-          break;
-      }
-    };
-
-    const keyupListener = (e) => {
-      if (e.code === 'ArrowDown' && this.fallingStateInterval) {
-        clearInterval(this.fallingStateInterval);
-        this.currentClockSpeed = this.DEFAULT_CLOCK_SPEED;
-        this.fallingStateInterval = this.animateFallingBlock();
-      }
+  keydownListener(e) {
+    if (e.code === 'Space') {
+      this.paused = !this.paused;
     }
 
-    document.addEventListener('keydown', keydownListener);
-    document.addEventListener('keyup', keyupListener);
+    if (!this.nextBlock || this.paused || !this.fallingStateInterval) return;
+
+    const left = parseInt(this.nextBlock.style.left);
+
+    switch (e.code) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (left > 0) {
+          this.nextBlock.style.left = `${left - 40}px`;
+        }
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        if (left < 720) {
+          this.nextBlock.style.left = `${left + 40}px`;
+        }
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        if (this.currentClockSpeed === 50) return;
+        window.clearInterval(this.fallingStateInterval);
+        this.currentClockSpeed = 50;
+        this.fallingStateInterval = this.animateFallingBlock();
+        break;
+      default:
+        break;
+    }
+  };
+
+  keyupListener(e) {
+    if (e.code === 'ArrowDown') {
+      //console.log({ currentInterval: this.fallingStateInterval })
+      window.clearInterval(this.fallingStateInterval);
+      this.currentClockSpeed = 300;
+      this.fallingStateInterval = this.animateFallingBlock();
+    }
   }
 
   animateFallingBlock() {
+   // console.log('falling state', this.currentClockSpeed);
     return setInterval(() => {
       if (this.paused || !this.nextBlock) return;
       const top = parseInt(this.nextBlock.style.top);
-      const blocks = document.getElementsByClassName('block');
-
+      const blocks = document.querySelectorAll('.block');
+      console.log({ blocks });
       [...blocks].filter(block => block !== this.nextBlock).forEach(block => {
         if (this.isTouchingAnotherBlockBelow(top, block, this.nextBlock)) {
+          console.log('touching another block below');
           this.stopFallingState(blocks);
           return;
         }
       });
 
-      if (this.isAtBottomOfScreen(top, screen, this.nextBlock)) {
+      if (this.isAtBottomOfGameCanvas(top, this.nextBlock)) {
         this.stopFallingState(blocks);
         return;
       }
@@ -102,7 +104,7 @@ class TetrisGame extends HTMLElement {
   stopFallingState(blocks) {
     this.checkIfRowIsFull(blocks);
     this.nextBlock = null;
-    this.spawnBlock(screen);
+    this.spawnBlock();
     clearInterval(this.fallingStateInterval);
   }
 
@@ -133,14 +135,14 @@ class TetrisGame extends HTMLElement {
     this.increaseScore();
     currentRow.forEach(block => block.classList.add('full-row'));
     setTimeout(() => {
-      const blocksAbove = document.getElementsByClassName('block');
+      const blocksAbove = document.querySelectorAll('.block');
       currentRow.forEach(block => block.remove());
       [...blocksAbove].forEach(block => this.moveOneRowDown(block, row));
     }, 300);
   }
 
   increaseScore() {
-    const score = document.getElementById('score');
+    const score = document.querySelectorAll('#score');
     const currentScore = parseInt(score.innerText);
     score.innerText = currentScore + 10;
   }
@@ -152,11 +154,12 @@ class TetrisGame extends HTMLElement {
     }
   }
 
-  isAtBottomOfScreen(top, screen, nextBlock) {
-    return nextBlock && top >= (screen.offsetHeight - nextBlock.offsetHeight);
+  isAtBottomOfGameCanvas(top, nextBlock) {
+    return nextBlock && top >= (this.gameCanvas.offsetHeight - nextBlock.offsetHeight);
   }
 
   isTouchingAnotherBlockBelow(top, block, nextBlock) {
+    console.log({nextBlock})
     if (!nextBlock) return false;
     const blockTop = parseInt(block.style.top);
     const blockLeft = parseInt(block.style.left);

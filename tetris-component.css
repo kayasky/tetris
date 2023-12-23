@@ -1,20 +1,3 @@
-@font-face {
-  font-family: 'MyWebFont';
-  src: url('PixeloidSans.ttf') format('truetype');
-}
-
-body {
-  text-align: center;
-  background-color: rgb(20, 20, 20);
-  color: #C7FF9E;
-  font-family: 'MyWebFont';
-}
-
-main {
-  width: fit-content;
-  margin: auto;
-}
-
 .game-title {
   float: left;
 }
@@ -26,7 +9,7 @@ main {
   float: right;
 }
 
-.screen {
+.game-canvas {
   width: 800px;
   height: 1200px;
   background-color: black;
