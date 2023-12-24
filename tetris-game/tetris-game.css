@@ -1,13 +1,8 @@
-@font-face {
-  font-family: "MyWebFont";
-  src: url("PixeloidSans.ttf") format("truetype");
-}
-
 .game-container {
   text-align: center;
   background-color: rgb(20, 20, 20);
   color: #C7FF9E;
-  font-family: "MyWebFont";
+  font-family: "Pixeloid Sans";
   width: fit-content;
   margin: auto;
 }

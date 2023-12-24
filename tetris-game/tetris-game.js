@@ -46,6 +46,10 @@ class TetrisGame extends HTMLElement {
   }
 
   attachStyles() {
+    const fontFaceStylesTemplate = document.createElement('template');
+    fontFaceStylesTemplate.innerHTML = this.getFontFaceStyles();
+    document.head.appendChild(fontFaceStylesTemplate.content.cloneNode(true));
+
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
     styles.setAttribute("href", `${this.baseUrl}/tetris-game.css`);
@@ -237,6 +241,23 @@ class TetrisGame extends HTMLElement {
     const possibleLeft = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720];
     return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
   }
+
+  getFontFaceStyles() {
+    return `
+      <style>
+      @font-face {
+        font-family: "Pixeloid Sans";
+        src: url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.eot");
+        src: url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.eot?#iefix")format("embedded-opentype"),
+          url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.woff2")format("woff2"),
+          url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.woff")format("woff"),
+          url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.ttf")format("truetype"),
+          url("https://db.onlinewebfonts.com/t/44edad438331a44bf2c79f9b7be0cd1a.svg#Pixeloid Sans")format("svg");
+      }
+      </style>
+    `;
+  }
+
 }
 
 customElements.define("tetris-game", TetrisGame);
