@@ -40,7 +40,7 @@ class TetrisGame extends HTMLElement {
     this.gameContainer.innerHTML = `
       <div>
         <h1 class="game-title">TETRIS</h1>
-        <h1 class="score-label">Score <span class="score">${this.currentScore}</span></h1>
+        <h1 class="score-label">SCORE <span class="score">${this.currentScore}</span></h1>
       </div>`;
     this.shadow.appendChild(this.gameContainer);
   }
