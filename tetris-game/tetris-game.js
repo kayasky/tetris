@@ -7,12 +7,14 @@ class TetrisGame extends HTMLElement {
   shadow;
   blockFallAnimationLoop;
   currentScore = 0;
+  baseUrl;
 
   constructor() {
     super();
   }
 
   connectedCallback() {
+    this.baseUrl = this.getAttribute("base-url") || "tetris-game";
     this.shadow = this.attachShadow({ mode: "open" });
     this.attachStyles();
     this.attachGameContainer();
@@ -46,7 +48,7 @@ class TetrisGame extends HTMLElement {
   attachStyles() {
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
-    styles.setAttribute("href", "./tetris-game.css");
+    styles.setAttribute("href", `${this.baseUrl}/tetris-game.css`);
     this.shadow.appendChild(styles);
   }
 
@@ -235,7 +237,6 @@ class TetrisGame extends HTMLElement {
     const possibleLeft = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720];
     return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
   }
-
 }
 
 customElements.define("tetris-game", TetrisGame);
