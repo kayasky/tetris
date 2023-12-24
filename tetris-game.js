@@ -42,7 +42,7 @@ class TetrisGame extends HTMLElement {
   attachStyles() {
     const styles = document.createElement("link");
     styles.setAttribute("rel", "stylesheet");
-    styles.setAttribute("href", "./tetris-component.css");
+    styles.setAttribute("href", "./tetris-game.css");
     this.shadow.appendChild(styles);
   }
 
