@@ -9,6 +9,8 @@
 
 .game-title {
   float: left;
+  /* text-shadow: 0 0 100px 10px rgba(255, 251, 154, 0.50); */
+  text-shadow: 0 0 10px rgba(255, 251, 154, 0.20);
 }
 
 .score-label {
@@ -16,6 +18,7 @@
   font-weight: bold;
   margin-bottom: 1rem;
   float: right;
+  text-shadow: 0 0 10px rgba(255, 251, 154, 0.20);
 }
 
 .game-canvas {
@@ -24,7 +27,8 @@
   background-color: black;
   margin: auto;
   position: relative;
-  box-shadow: 0px 0px 1px 0px white;
+  box-shadow: 0 0 50px rgba(255, 251, 154, 0.20);
+  outline: 5px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
@@ -33,41 +37,45 @@
   height: 80px;
   background-color: #9EACFF;
   position: absolute;
-  outline: 5px solid black;
+  outline: 5px solid rgba(0, 0, 0, 0.75);
   outline-offset: -5px;
   transition: all 0.05s linear 0s;
   top: 0;
-  box-shadow: inset 0px 0px 20px 0px rgba(255, 255, 255, 0.75);
-  text-shadow: 1px 1px 2px white, 0 0 3px black, 0 0 3px black;
+  /* box-shadow: inset 0px 0px 20px 0px rgba(255, 255, 255, 0.75); */
 }
 
 .block::before {
   content: "＋";
-  color: black;
-  font-size: 111px;
-  line-height: 0.7;
-  margin-left: -15px;
+  color: rgba(0, 0, 0, 0.75);
+  font-size: 113px;
+  line-height: 0.65;
+  margin-left: -16px;
   text-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.75);
 }
 
 .block.variant1 {
   background-color: #9EACFF;
+  box-shadow: 0 0 100px 10px rgba(158, 172, 255, 0.50);
 }
 
 .block.variant2 {
   background-color: #C7FF9E;
+  box-shadow: 0 0 100px 10px rgba(199, 255, 158, 0.50);
 }
 
 .block.variant3 {
   background-color: #C59EFF;
+  box-shadow: 0 0 100px 10px rgba(197, 158, 255, 0.50);
 }
 
 .block.variant4 {
   background-color: #FFFB9A;
+  box-shadow: 0 0 100px 10px rgba(255, 251, 154, 0.50);
 }
 
 .block.variant5 {
   background-color: #9A90AA;
+  box-shadow: 0 0 100px 10px rgba(154, 144, 170, 0.50);
 }
 
 .block.line {
