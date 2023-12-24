@@ -9,7 +9,6 @@
 
 .game-title {
   float: left;
-  /* text-shadow: 0 0 100px 10px rgba(255, 251, 154, 0.50); */
   text-shadow: 0 0 10px rgba(255, 251, 154, 0.20);
 }
 
@@ -50,7 +49,7 @@
   font-size: 113px;
   line-height: 0.65;
   margin-left: -16px;
-  text-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.75);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 1);
 }
 
 .block.variant1 {
