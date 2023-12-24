@@ -1,11 +1,10 @@
 class TetrisGame extends HTMLElement {
-  currentClockSpeed = 300;
   paused = false;
   isAccelerating = false;
   nextBlock;
   gameCanvas;
   shadow;
-  fallingStateInterval;
+  blockFallAnimationLoop;
   currentScore = 0;
 
   constructor() {
@@ -14,27 +13,43 @@ class TetrisGame extends HTMLElement {
 
   connectedCallback() {
     this.shadow = this.attachShadow({ mode: "open" });
-    const styles = document.createElement("link");
-    styles.setAttribute("rel", "stylesheet");
-    styles.setAttribute("href", "./tetris-component.css");
-    this.shadow.appendChild(styles);
-    const gameContainer = document.createElement("div");
+    this.attachStyles();
+    this.attachGameContainer();
+    this.attachGameCanvas();
+    this.spawnBlock();
+    this.attachUserInputListeners();
+  }
+
+  attachUserInputListeners() {
+    document.addEventListener('keydown', this.keydownListener.bind(this));
+    document.addEventListener('keyup', this.keyupListener.bind(this));
+  }
+
+  attachGameCanvas() {
     this.gameCanvas = document.createElement("div");
     this.gameCanvas.classList.add('game-canvas');
+    this.shadow.appendChild(this.gameCanvas);
+  }
+
+  attachGameContainer() {
+    const gameContainer = document.createElement("div");
     gameContainer.innerHTML = `
       <h1 class="game-title">TETRIS</h1>
       <h1 class="score-label">Score <span class="score">${this.currentScore}</span></h1>`;
     this.shadow.appendChild(gameContainer);
-    this.shadow.appendChild(this.gameCanvas);
-    this.spawnBlock();
-    document.addEventListener('keydown', this.keydownListener.bind(this));
-    document.addEventListener('keyup', this.keyupListener.bind(this));
+  }
+
+  attachStyles() {
+    const styles = document.createElement("link");
+    styles.setAttribute("rel", "stylesheet");
+    styles.setAttribute("href", "./tetris-component.css");
+    this.shadow.appendChild(styles);
   }
 
   spawnBlock() {
     this.nextBlock = this.createNextBlockElement();
     this.gameCanvas.appendChild(this.nextBlock);
-    this.fallingStateInterval = this.animateFallingBlock(300);
+    this.blockFallAnimationLoop = this.animateFallingBlock(this.isAccelerating ? 50 : 300);
   }
 
   keydownListener(e) {
@@ -62,20 +77,18 @@ class TetrisGame extends HTMLElement {
       case 'ArrowDown':
         e.preventDefault();
         if (this.isAccelerating) return;
-        clearInterval(this.fallingStateInterval);
+        clearInterval(this.blockFallAnimationLoop);
         this.isAccelerating = true;
-        this.fallingStateInterval = this.animateFallingBlock(50);
-        break;
-      default:
+        this.blockFallAnimationLoop = this.animateFallingBlock(50);
         break;
     }
-  };
+  }
 
   keyupListener(e) {
     if (e.code === 'ArrowDown') {
-      clearInterval(this.fallingStateInterval);
+      clearInterval(this.blockFallAnimationLoop);
       this.isAccelerating = false
-      this.fallingStateInterval = this.animateFallingBlock(300);
+      this.blockFallAnimationLoop = this.animateFallingBlock(300);
     }
   }
 
@@ -83,17 +96,17 @@ class TetrisGame extends HTMLElement {
     return setInterval(() => {
       if (this.paused || !this.nextBlock) return;
       const top = parseInt(this.nextBlock.style.top);
-      const blocks = this.shadow.querySelectorAll('.block');
-      const touching = [...blocks].filter(block =>
+      const allBlocksOnGameCanvas = this.shadow.querySelectorAll('.block');
+      const blocksTouchedBelow = [...allBlocksOnGameCanvas].filter(block =>
         block !== this.nextBlock && this.isTouchingOtherBlockBelow(top, block))
 
-      if (touching.length > 0) {
-        this.stopFallingState(blocks);
+      if (blocksTouchedBelow.length > 0) {
+        this.stopFallingState(allBlocksOnGameCanvas);
         return;
       }
 
       if (this.nextBlock && this.isAtBottomOfGameCanvas(top)) {
-        this.stopFallingState(blocks);
+        this.stopFallingState(allBlocksOnGameCanvas);
         return;
       }
 
@@ -105,7 +118,7 @@ class TetrisGame extends HTMLElement {
 
   stopFallingState(blocks) {
     this.nextBlock = undefined;
-    clearInterval(this.fallingStateInterval);
+    clearInterval(this.blockFallAnimationLoop);
     this.checkIfRowIsFull(blocks);
     this.spawnBlock();
   }
@@ -134,7 +147,7 @@ class TetrisGame extends HTMLElement {
   }
 
   updateScoreAndRemoveFullRow(currentRow, row) {
-    this.increaseScore();
+    this.incrementScore();
     currentRow.forEach(block => block.classList.add('full-row'));
     setTimeout(() => {
       const blocksAbove = this.shadowRoot.querySelectorAll('.block');
@@ -143,9 +156,8 @@ class TetrisGame extends HTMLElement {
     }, 300);
   }
 
-  increaseScore() {
-    const score = this.shadowRoot.querySelectorAll('.score');
-    console.log(score)
+  incrementScore() {
+    const score = this.shadowRoot.querySelectorAll('.score')[0];
     this.currentScore += 10;
     score.textContent = this.currentScore;
   }
