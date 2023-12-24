@@ -106,7 +106,7 @@ class TetrisGame extends HTMLElement {
 
   moveBlockRight(e, left) {
     e.preventDefault();
-    if (left < 720) {
+    if (left < 800 - this.nextBlock.offsetWidth) {
       this.nextBlock.style.left = `${left + 40}px`;
     }
   }
@@ -123,7 +123,7 @@ class TetrisGame extends HTMLElement {
       if (this.paused || !this.nextBlock) return;
 
       const top = parseInt(this.nextBlock.style.top);
-      const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block");
+      const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block-container");
 
       if (this.isTouchingAnyBlock(allBlocksOnGameCanvas, top)) {
         this.stopFallingState(allBlocksOnGameCanvas);
@@ -199,7 +199,7 @@ class TetrisGame extends HTMLElement {
   moveOneRowDown(block, row) {
     const top = parseInt(block.style.top);
     if (top < row) {
-      block.style.top = `${top + 80}px`;
+      block.style.top = `${top + 40}px`;
     }
   }
 
@@ -220,21 +220,37 @@ class TetrisGame extends HTMLElement {
   createNextBlockElement() {
     const left = this.getLeftValue();
     const newBlock = document.createElement("div");
-    newBlock.classList.add("block");
+    newBlock.classList.add("block-container");
     // randomly choose color
     const colors = ["variant1", "variant2", "variant3", "variant4", "variant5"];
     const color = colors[Math.floor(Math.random() * colors.length)];
 
     // randomly choose block type
-    const blockTypes = ["square", "line"];
+    const blockTypes = [this.createBlock(color), this.createSquareBlock(color)];
     const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
 
-    // not working as of now
-    //nextBlock.classList.add(color, blockType);
+    newBlock.innerHTML = blockType;
     newBlock.classList.add(color);
     newBlock.style.top = "-40px";
     newBlock.style.left = `${left}px`;
     return newBlock;
+  }
+
+  createBlock(variant) {
+    return `<div class="block ${variant} small"></div>`;
+  }
+
+  createSquareBlock(variant) {
+    return `
+      <div class="square">
+        <div class="block ${variant} small"></div>
+        <div class="block ${variant} small"></div>
+      </div>
+      <div class="square">
+        <div class="block ${variant} small"></div>
+        <div class="block ${variant} small"></div>
+      </div>
+    `;
   }
 
   getLeftValue() {
