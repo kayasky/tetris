@@ -16,8 +16,8 @@ class TetrisGame extends HTMLElement {
     this.attachStyles();
     this.attachGameContainer();
     this.attachGameCanvas();
-    this.spawnBlock();
     this.attachUserInputListeners();
+    this.spawnBlock();
   }
 
   attachUserInputListeners() {
@@ -63,32 +63,48 @@ class TetrisGame extends HTMLElement {
 
     switch (e.code) {
       case 'ArrowLeft':
-        e.preventDefault();
-        if (left > 0) {
-          this.nextBlock.style.left = `${left - 40}px`;
-        }
+        this.moveBlockLeft(e, left);
         break;
       case 'ArrowRight':
-        e.preventDefault();
-        if (left < 720) {
-          this.nextBlock.style.left = `${left + 40}px`;
-        }
+        this.moveBlockRight(e, left);
         break;
       case 'ArrowDown':
-        e.preventDefault();
-        if (this.isAccelerating) return;
-        clearInterval(this.blockFallAnimationLoop);
-        this.isAccelerating = true;
-        this.blockFallAnimationLoop = this.animateFallingBlock(50);
+        this.accelerateBlockFall(e);
         break;
     }
   }
 
   keyupListener(e) {
     if (e.code === 'ArrowDown') {
-      clearInterval(this.blockFallAnimationLoop);
-      this.isAccelerating = false
-      this.blockFallAnimationLoop = this.animateFallingBlock(300);
+      this.decelerateBlockFall();
+    }
+  }
+
+  decelerateBlockFall() {
+    clearInterval(this.blockFallAnimationLoop);
+    this.isAccelerating = false;
+    this.blockFallAnimationLoop = this.animateFallingBlock(300);
+  }
+
+  accelerateBlockFall(e) {
+    e.preventDefault();
+    if (this.isAccelerating) return;
+    clearInterval(this.blockFallAnimationLoop);
+    this.isAccelerating = true;
+    this.blockFallAnimationLoop = this.animateFallingBlock(50);
+  }
+
+  moveBlockRight(e, left) {
+    e.preventDefault();
+    if (left < 720) {
+      this.nextBlock.style.left = `${left + 40}px`;
+    }
+  }
+
+  moveBlockLeft(e, left) {
+    e.preventDefault();
+    if (left > 0) {
+      this.nextBlock.style.left = `${left - 40}px`;
     }
   }
 
