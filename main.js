@@ -1,3 +1,6 @@
+
+// Old code. use tetris-game.js instead
+
 (() => {
   const gameScreen = document.getElementById('screen');
   const DEFAULT_CLOCK_SPEED = 300;

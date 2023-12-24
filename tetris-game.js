@@ -3,6 +3,7 @@ class TetrisGame extends HTMLElement {
   isAccelerating = false;
   nextBlock;
   gameCanvas;
+  gameContainer;
   shadow;
   blockFallAnimationLoop;
   currentScore = 0;
@@ -21,22 +22,25 @@ class TetrisGame extends HTMLElement {
   }
 
   attachUserInputListeners() {
-    document.addEventListener('keydown', this.keydownListener.bind(this));
-    document.addEventListener('keyup', this.keyupListener.bind(this));
+    document.addEventListener("keydown", this.keydownListener.bind(this));
+    document.addEventListener("keyup", this.keyupListener.bind(this));
   }
 
   attachGameCanvas() {
     this.gameCanvas = document.createElement("div");
-    this.gameCanvas.classList.add('game-canvas');
-    this.shadow.appendChild(this.gameCanvas);
+    this.gameCanvas.classList.add("game-canvas");
+    this.gameContainer.appendChild(this.gameCanvas);
   }
 
   attachGameContainer() {
-    const gameContainer = document.createElement("div");
-    gameContainer.innerHTML = `
-      <h1 class="game-title">TETRIS</h1>
-      <h1 class="score-label">Score <span class="score">${this.currentScore}</span></h1>`;
-    this.shadow.appendChild(gameContainer);
+    this.gameContainer = document.createElement("div");
+    this.gameContainer.classList.add("game-container");
+    this.gameContainer.innerHTML = `
+      <div>
+        <h1 class="game-title">TETRIS</h1>
+        <h1 class="score-label">Score <span class="score">${this.currentScore}</span></h1>
+      </div>`;
+    this.shadow.appendChild(this.gameContainer);
   }
 
   attachStyles() {
@@ -53,7 +57,7 @@ class TetrisGame extends HTMLElement {
   }
 
   keydownListener(e) {
-    if (e.code === 'Space') {
+    if (e.code === "Space") {
       this.paused = !this.paused;
     }
 
@@ -62,20 +66,20 @@ class TetrisGame extends HTMLElement {
     const left = parseInt(this.nextBlock.style.left);
 
     switch (e.code) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         this.moveBlockLeft(e, left);
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         this.moveBlockRight(e, left);
         break;
-      case 'ArrowDown':
+      case "ArrowDown":
         this.accelerateBlockFall(e);
         break;
     }
   }
 
   keyupListener(e) {
-    if (e.code === 'ArrowDown') {
+    if (e.code === "ArrowDown") {
       this.decelerateBlockFall();
     }
   }
@@ -113,7 +117,7 @@ class TetrisGame extends HTMLElement {
       if (this.paused || !this.nextBlock) return;
 
       const top = parseInt(this.nextBlock.style.top);
-      const allBlocksOnGameCanvas = this.shadow.querySelectorAll('.block');
+      const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block");
 
       if (this.isTouchingAnyBlock(allBlocksOnGameCanvas, top)) {
         this.stopFallingState(allBlocksOnGameCanvas);
@@ -172,16 +176,16 @@ class TetrisGame extends HTMLElement {
 
   updateScoreAndRemoveFullRow(currentRow, row) {
     this.incrementScore();
-    currentRow.forEach(block => block.classList.add('full-row'));
+    currentRow.forEach(block => block.classList.add("full-row"));
     setTimeout(() => {
-      const blocksAbove = this.shadowRoot.querySelectorAll('.block');
+      const blocksAbove = this.shadowRoot.querySelectorAll(".block");
       currentRow.forEach(block => block.remove());
       [...blocksAbove].forEach(block => this.moveOneRowDown(block, row));
     }, 300);
   }
 
   incrementScore() {
-    const score = this.shadowRoot.querySelectorAll('.score')[0];
+    const score = this.shadowRoot.querySelectorAll(".score")[0];
     this.currentScore += 10;
     score.textContent = this.currentScore;
   }
@@ -209,20 +213,20 @@ class TetrisGame extends HTMLElement {
 
   createNextBlockElement() {
     const left = this.getLeftValue();
-    const newBlock = document.createElement('div');
-    newBlock.classList.add('block');
+    const newBlock = document.createElement("div");
+    newBlock.classList.add("block");
     // randomly choose color
-    const colors = ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'];
+    const colors = ["variant1", "variant2", "variant3", "variant4", "variant5"];
     const color = colors[Math.floor(Math.random() * colors.length)];
 
     // randomly choose block type
-    const blockTypes = ['square', 'line'];
+    const blockTypes = ["square", "line"];
     const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
 
     // not working as of now
     //nextBlock.classList.add(color, blockType);
     newBlock.classList.add(color);
-    newBlock.style.top = '-40px';
+    newBlock.style.top = "-40px";
     newBlock.style.left = `${left}px`;
     return newBlock;
   }
