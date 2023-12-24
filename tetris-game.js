@@ -111,12 +111,11 @@ class TetrisGame extends HTMLElement {
   animateFallingBlock(clockSpeed) {
     return setInterval(() => {
       if (this.paused || !this.nextBlock) return;
+
       const top = parseInt(this.nextBlock.style.top);
       const allBlocksOnGameCanvas = this.shadow.querySelectorAll('.block');
-      const blocksTouchedBelow = [...allBlocksOnGameCanvas].filter(block =>
-        block !== this.nextBlock && this.isTouchingOtherBlockBelow(top, block))
 
-      if (blocksTouchedBelow.length > 0) {
+      if (this.isTouchingAnyBlock(allBlocksOnGameCanvas, top)) {
         this.stopFallingState(allBlocksOnGameCanvas);
         return;
       }
@@ -126,10 +125,14 @@ class TetrisGame extends HTMLElement {
         return;
       }
 
-      if (this.nextBlock) {
-        this.nextBlock.style.top = `${top + 40}px`;
-      }
+      this.nextBlock.style.top = `${top + 40}px`;
     }, clockSpeed);
+  }
+
+  isTouchingAnyBlock(allBlocksOnGameCanvas, top) {
+    return [...allBlocksOnGameCanvas]
+      .filter(block => block !== this.nextBlock
+        && this.isTouchingOtherBlockBelow(top, block)).length > 0;
   }
 
   stopFallingState(blocks) {
@@ -140,8 +143,17 @@ class TetrisGame extends HTMLElement {
   }
 
   checkIfRowIsFull(blocks) {
-    const rows = {};
+    const rows = this.getRows(blocks);
+    for (let row in rows) {
+      const currentRow = rows[row];
+      if (this.getRowWidth(currentRow) >= 800) {
+        this.updateScoreAndRemoveFullRow(currentRow, row);
+      }
+    }
+  }
 
+  getRows(blocks) {
+    const rows = {};
     [...blocks].forEach(block => {
       const top = parseInt(block.style.top);
       if (!rows[top]) {
@@ -149,17 +161,13 @@ class TetrisGame extends HTMLElement {
       }
       rows[top].push(block);
     });
+    return rows;
+  }
 
-    for (let row in rows) {
-      const currentRow = rows[row];
-      const rowWidth = [...currentRow]
-        .map(block => block.offsetWidth)
-        .reduce((totalWidth, currentBlockWidth) => totalWidth + currentBlockWidth, 0);
-
-      if (rowWidth >= 800) {
-        this.updateScoreAndRemoveFullRow(currentRow, row);
-      }
-    }
+  getRowWidth(currentRow) {
+    return [...currentRow]
+      .map(block => block.offsetWidth)
+      .reduce((totalWidth, currentBlockWidth) => totalWidth + currentBlockWidth, 0);
   }
 
   updateScoreAndRemoveFullRow(currentRow, row) {
