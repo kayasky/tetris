@@ -31,6 +31,12 @@
   overflow: hidden;
 }
 
+.block-container {
+  position: absolute;
+  transition: all 0.05s linear 0s;
+  top: 0;
+}
+
 .block {
   width: 80px;
   height: 80px;
@@ -40,7 +46,6 @@
   outline-offset: -5px;
   transition: all 0.05s linear 0s;
   top: 0;
-  /* box-shadow: inset 0px 0px 20px 0px rgba(255, 255, 255, 0.75); */
 }
 /* 
 .block::before {

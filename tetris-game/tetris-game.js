@@ -124,7 +124,7 @@ class TetrisGame extends HTMLElement {
       if (this.paused || !this.getNextBlock()) return;
 
       const top = parseInt(this.getNextBlock().style.top);
-      const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block");
+      const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block:not(.falling)");
 
       if (this.isTouchingAnyBlock(allBlocksOnGameCanvas, top)) {
         this.stopFallingState(allBlocksOnGameCanvas);
@@ -142,22 +142,28 @@ class TetrisGame extends HTMLElement {
 
   isTouchingAnyBlock(allBlocksOnGameCanvas, top) {
     return [...allBlocksOnGameCanvas]
-      .filter(block => block !== this.getNextBlock()
-        && this.isTouchingOtherBlockBelow(top, block)).length > 0;
+      .filter(block => this.isTouchingOtherBlockBelow(top, block)).length > 0;
   }
 
   stopFallingState(blocks) {
-    this.nextBlock = undefined;
+    [...this.nextBlock.childNodes].filter(block => block.outerHTML).forEach((block, i) => {
+      block.style.top = `${parseInt(block.style.top) + parseInt(this.nextBlock.style.top)}px`;
+      block.style.left = `${parseInt(block.style.left) + parseInt(this.nextBlock.style.left)}px`;
+      block.classList.remove("falling");
+    });
+    this.nextBlock.outerHTML = this.nextBlock.innerHTML;
+    //this.nextBlock = undefined;
     clearInterval(this.blockFallAnimationLoop);
-    this.checkIfRowIsFull(blocks);
+    //this.checkIfRowIsFull(blocks);
     this.spawnBlock();
+
   }
 
   checkIfRowIsFull(blocks) {
     const rows = this.getRows(blocks);
     for (let row in rows) {
       const currentRow = rows[row];
-      if (this.getRowWidth(currentRow) >= 800) {
+      if (currentRow.length > 9) {
         this.updateScoreAndRemoveFullRow(currentRow, row);
       }
     }
@@ -172,6 +178,7 @@ class TetrisGame extends HTMLElement {
       }
       rows[top].push(block);
     });
+    console.log(rows);
     return rows;
   }
 
@@ -213,15 +220,25 @@ class TetrisGame extends HTMLElement {
 
     const blockTop = parseInt(otherBlock.style.top);
     const blockLeft = parseInt(otherBlock.style.left);
+
     return blockTop === top + otherBlock.offsetHeight
       && ((parseInt(this.getNextBlock().style.left) >= blockLeft && parseInt(this.getNextBlock().style.left) < blockLeft + otherBlock.offsetWidth)
-        || (parseInt(this.getNextBlock().style.left) + this.getNextBlock().offsetWidth > blockLeft && parseInt(this.getNextBlock().style.left) < blockLeft));
+        || (parseInt(this.getNextBlock().style.left) + this.getNextBlock().offsetWidth > blockLeft && parseInt(this.getNextBlock().style.left) + this.getNextBlock().offsetWidth <= blockLeft + otherBlock.offsetWidth));
   }
 
   createNextBlockElement() {
     const left = this.getLeftValue();
+
+
+    const blockContainer = document.createElement("div");
+    blockContainer.classList.add("block-container");
+    blockContainer.style.left = `${left}px`;
+    blockContainer.style.top = "-80px";
+    blockContainer.style.height = "160px";
+
+
     const newBlock = document.createElement("div");
-    newBlock.classList.add("block");
+    newBlock.classList.add("block", "falling");
     // randomly choose color
     const colors = ["variant1", "variant2", "variant3", "variant4", "variant5"];
     const color = colors[Math.floor(Math.random() * colors.length)];
@@ -233,9 +250,15 @@ class TetrisGame extends HTMLElement {
     // not working as of now
     //nextBlock.classList.add(color, blockType);
     newBlock.classList.add(color);
-    newBlock.style.top = "-80px";
-    newBlock.style.left = `${left}px`;
-    return newBlock;
+    blockContainer.innerHTML = `
+      <div class="block ${color}" style="top: 80px; left: 80px"></div>
+      <div class="block ${color}" style="top: 80px; left: 0px"></div>
+      <div class="block ${color}" style="top: 0px; left: 80px"></div>
+      <div class="block ${color}" style="top: 0px; left: 0px"></div>
+    `;
+    // newBlock.style.top = "-80px";
+    // newBlock.style.left = `${left}px`;
+    return blockContainer;
   }
 
   getNextBlock() {
@@ -243,7 +266,7 @@ class TetrisGame extends HTMLElement {
   }
 
   getLeftValue() {
-    const possibleLeft = [0, 80, 160, 240, 320, 400, 480, 560, 640, 720];
+    const possibleLeft = [0, 160, 240, 320, 400, 480, 560, 640];
     return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
   }
 
