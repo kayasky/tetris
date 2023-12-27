@@ -2,6 +2,7 @@ class TetrisGame extends HTMLElement {
   paused = false;
   isAccelerating = false;
   nextBlock;
+  nextBlock1;
   gameCanvas;
   gameContainer;
   shadow;
@@ -58,7 +59,7 @@ class TetrisGame extends HTMLElement {
 
   spawnBlock() {
     this.nextBlock = this.createNextBlockElement();
-    this.gameCanvas.appendChild(this.nextBlock);
+    this.gameCanvas.append(this.getNextBlock());
     this.blockFallAnimationLoop = this.animateFallingBlock(this.isAccelerating ? 50 : 300);
   }
 
@@ -67,9 +68,9 @@ class TetrisGame extends HTMLElement {
       this.paused = !this.paused;
     }
 
-    if (!this.nextBlock || this.paused) return;
+    if (!this.getNextBlock() || this.paused) return;
 
-    const left = parseInt(this.nextBlock.style.left);
+    const left = parseInt(this.getNextBlock().style.left);
 
     switch (e.code) {
       case "ArrowLeft":
@@ -107,22 +108,22 @@ class TetrisGame extends HTMLElement {
   moveBlockRight(e, left) {
     e.preventDefault();
     if (left < 720) {
-      this.nextBlock.style.left = `${left + 40}px`;
+      this.getNextBlock().style.left = `${left + 80}px`;
     }
   }
 
   moveBlockLeft(e, left) {
     e.preventDefault();
     if (left > 0) {
-      this.nextBlock.style.left = `${left - 40}px`;
+      this.getNextBlock().style.left = `${left - 80}px`;
     }
   }
 
   animateFallingBlock(clockSpeed) {
     return setInterval(() => {
-      if (this.paused || !this.nextBlock) return;
+      if (this.paused || !this.getNextBlock()) return;
 
-      const top = parseInt(this.nextBlock.style.top);
+      const top = parseInt(this.getNextBlock().style.top);
       const allBlocksOnGameCanvas = this.shadow.querySelectorAll(".block");
 
       if (this.isTouchingAnyBlock(allBlocksOnGameCanvas, top)) {
@@ -130,18 +131,18 @@ class TetrisGame extends HTMLElement {
         return;
       }
 
-      if (this.nextBlock && this.isAtBottomOfGameCanvas(top)) {
+      if (this.getNextBlock() && this.isAtBottomOfGameCanvas(top)) {
         this.stopFallingState(allBlocksOnGameCanvas);
         return;
       }
 
-      this.nextBlock.style.top = `${top + 40}px`;
+      this.getNextBlock().style.top = `${top + 80}px`;
     }, clockSpeed);
   }
 
   isTouchingAnyBlock(allBlocksOnGameCanvas, top) {
     return [...allBlocksOnGameCanvas]
-      .filter(block => block !== this.nextBlock
+      .filter(block => block !== this.getNextBlock()
         && this.isTouchingOtherBlockBelow(top, block)).length > 0;
   }
 
@@ -204,17 +205,17 @@ class TetrisGame extends HTMLElement {
   }
 
   isAtBottomOfGameCanvas(top) {
-    return this.nextBlock && top >= (this.gameCanvas.offsetHeight - this.nextBlock.offsetHeight);
+    return this.getNextBlock() && top >= (this.gameCanvas.offsetHeight - this.getNextBlock().offsetHeight);
   }
 
   isTouchingOtherBlockBelow(top, otherBlock) {
-    if (!this.nextBlock) return false;
+    if (!this.getNextBlock()) return false;
 
     const blockTop = parseInt(otherBlock.style.top);
     const blockLeft = parseInt(otherBlock.style.left);
     return blockTop === top + otherBlock.offsetHeight
-      && ((parseInt(this.nextBlock.style.left) >= blockLeft && parseInt(this.nextBlock.style.left) < blockLeft + otherBlock.offsetWidth)
-        || (parseInt(this.nextBlock.style.left) + this.nextBlock.offsetWidth > blockLeft && parseInt(this.nextBlock.style.left) < blockLeft));
+      && ((parseInt(this.getNextBlock().style.left) >= blockLeft && parseInt(this.getNextBlock().style.left) < blockLeft + otherBlock.offsetWidth)
+        || (parseInt(this.getNextBlock().style.left) + this.getNextBlock().offsetWidth > blockLeft && parseInt(this.getNextBlock().style.left) < blockLeft));
   }
 
   createNextBlockElement() {
@@ -232,13 +233,17 @@ class TetrisGame extends HTMLElement {
     // not working as of now
     //nextBlock.classList.add(color, blockType);
     newBlock.classList.add(color);
-    newBlock.style.top = "-40px";
+    newBlock.style.top = "-80px";
     newBlock.style.left = `${left}px`;
     return newBlock;
   }
 
+  getNextBlock() {
+    return this.nextBlock;
+  }
+
   getLeftValue() {
-    const possibleLeft = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720];
+    const possibleLeft = [0, 80, 160, 240, 320, 400, 480, 560, 640, 720];
     return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
   }
 
