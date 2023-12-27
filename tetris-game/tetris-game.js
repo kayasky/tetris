@@ -107,14 +107,14 @@ class TetrisGame extends HTMLElement {
   moveBlockRight(e, left) {
     e.preventDefault();
     if (left < 720) {
-      this.nextBlock.style.left = `${left + 40}px`;
+      this.nextBlock.style.left = `${left + 80}px`;
     }
   }
 
   moveBlockLeft(e, left) {
     e.preventDefault();
     if (left > 0) {
-      this.nextBlock.style.left = `${left - 40}px`;
+      this.nextBlock.style.left = `${left - 80}px`;
     }
   }
 
@@ -135,7 +135,7 @@ class TetrisGame extends HTMLElement {
         return;
       }
 
-      this.nextBlock.style.top = `${top + 40}px`;
+      this.nextBlock.style.top = `${top + 80}px`;
     }, clockSpeed);
   }
 
@@ -232,13 +232,13 @@ class TetrisGame extends HTMLElement {
     // not working as of now
     //nextBlock.classList.add(color, blockType);
     newBlock.classList.add(color);
-    newBlock.style.top = "-40px";
+    newBlock.style.top = "-80px";
     newBlock.style.left = `${left}px`;
     return newBlock;
   }
 
   getLeftValue() {
-    const possibleLeft = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720];
+    const possibleLeft = [0, 80, 160, 240, 320, 400, 480, 560, 640, 720];
     return possibleLeft[Math.floor(Math.random() * possibleLeft.length)];
   }
 
